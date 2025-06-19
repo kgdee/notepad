@@ -1,0 +1,306 @@
+/*==================== GOOGLE FONTS ====================*/
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap");
+/*==================== BOOTSTRAP ICONS ====================*/
+@import url("https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css");
+
+:root {
+  --bg-color: #ffffff;
+  --text-color: #333;
+  --border-color: rgba(0, 0, 0, 0.5);
+  --label-color: rgba(173, 216, 230, 0.5);
+  --red: #f44336;
+  --green: #4caf50;
+  --blue: #3f51b5;
+  --lightblue: #2196f3;
+}
+
+.dark-theme {
+  --bg-color: #222;
+  --text-color: #eee;
+  --border-color: rgba(255, 255, 255, 0.5);
+  --label-color: rgba(93, 173, 226, 0.5);
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  outline: none;
+  -webkit-tap-highlight-color: transparent;
+  border: none;
+  text-decoration: none;
+  line-height: 1;
+}
+
+button {
+  cursor: pointer;
+}
+
+.button {
+  display: inline-block;
+  padding: 8px 16px;
+  background: var(--green);
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.truncated {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.hidden {
+  display: none !important;
+}
+
+textarea {
+  padding: 5px;
+  background-color: transparent;
+  border: 1px solid var(--border-color);
+  color: var(--text-color);
+  border-radius: 5px;
+  overflow: auto;
+}
+
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.modal .modal-content {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 300px;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  background-color: var(--bg-color);
+  border: 1px solid var(--border-color);
+  border-radius: 5px;
+}
+
+.modal .close {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  padding: 0;
+  background-color: transparent;
+  color: var(--text-color);
+}
+
+.modal .actions {
+  display: flex;
+  gap: 5px;
+}
+
+.modal .actions > * {
+  flex: 1;
+}
+
+.modal .delete {
+  background-color: var(--red);
+}
+
+.modal .input-group {
+  display: flex;
+  gap: 10px;
+}
+
+body {
+  font-family: "Poppins", sans-serif;
+  background-color: var(--bg-color);
+  color: var(--text-color);
+}
+
+.container {
+  max-width: 1440px;
+  margin: auto;
+}
+
+.app {
+  overflow-x: hidden;
+  overflow-y: auto;
+  position: relative;
+  width: 100%;
+  height: 100vh;
+}
+
+.header {
+  position: relative;
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px;
+  background-color: var(--lightblue);
+  color: white;
+  padding: 10px;
+}
+
+.header .actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.header .theme-toggle {
+  font-size: 1.5rem;
+  padding: 0;
+  background-color: transparent;
+  color: white;
+}
+
+.search-box {
+  display: inline-flex;
+  width: 250px;
+  height: min-content;
+  padding: 5px 10px;
+  background-color: white;
+  color: #333;
+  border-radius: 50px;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+}
+
+.search-box input {
+  flex: 1;
+  padding: 0;
+  border: none;
+  color: var(--bg-color);
+}
+
+.breadcrumbs {
+  display: flex;
+  align-items: center;
+  overflow-x: auto;
+  gap: 5px;
+  cursor: pointer;
+  padding: 5px 0;
+  margin: 0 10px;
+  height: min-content;
+  max-width: 100%;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.breadcrumbs * {
+  background-color: transparent;
+  color: var(--text-color);
+  font-size: 1rem;
+  white-space: nowrap;
+}
+
+.action-bar {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 5px;
+  width: max-content;
+}
+
+.action-bar > * {
+  display: flex;
+  align-items: center;
+  padding: 10px;
+  background-color: transparent;
+  color: var(--text-color);
+  font-size: 1.75rem;
+  cursor: pointer;
+}
+
+.item-container {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+  gap: 5px;
+  padding: 10px;
+}
+
+.item-container > .message {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+}
+
+.item-container .item {
+  padding: 5px;
+  border: 1px solid transparent;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.item-container .item.selected {
+  border-color: var(--border-color)
+}
+
+.item-container .item * {
+  position: relative;
+  width: 100%;
+  text-align: center;
+  margin-bottom: 2px;
+}
+
+.text-modal .icon-input {
+  display: inline-flex;
+  cursor: pointer;
+}
+
+.text-modal .icon-input img {
+  width: 32px;
+  height: 32px;
+}
+
+.text-modal .content-input {
+  resize: none;
+  height: 200px;
+}
+
+.folder-modal .icon-input {
+  display: inline-flex;
+  cursor: pointer;
+}
+
+.folder-modal .icon-input img {
+  width: 32px;
+  height: 32px;
+}
+
+.toast-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  padding: 10px;
+}
+
+.toast {
+  background-color: var(--text-color);
+  color: var(--bg-color);
+  padding: 12px 20px;
+  border-radius: 5px;
+  width: max-content;
+  max-width: 100%;
+}
+
+/* Medium screens (Tablets, up to 768px wide) */
+@media (max-width: 768px) {
+ 
+}
+
+/* Small screens (Phones, up to 480px wide) */
+@media (max-width: 480px) {
+
+}

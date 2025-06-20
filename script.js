@@ -1,6 +1,6 @@
 const projectName = "notepad";
+const header = document.querySelector("body .header");
 const itemContainer = document.querySelector(".item-container");
-const searchBox = document.querySelector(".search-box");
 const breadcrumbs = document.querySelector(".breadcrumbs");
 
 const rootFolder = { id: null, name: "Root", path: [] };
@@ -8,6 +8,7 @@ let currentItems = JSON.parse(localStorage.getItem(`${projectName}_items`)) || [
 let currentFolder = rootFolder;
 let darkTheme = JSON.parse(localStorage.getItem(`${projectName}_darkTheme`)) || false;
 let selectedItem = null;
+let shouldSortByName = true;
 
 document.addEventListener("DOMContentLoaded", function () {
   displayItems();
@@ -23,6 +24,19 @@ window.addEventListener("error", (event) => {
 
 function stopPropagation(event) {
   event.stopPropagation();
+}
+
+function generateId() {
+  return Math.random().toString(36).slice(2, 11);
+}
+
+function isFileSizeAllowed(file) {
+  const maxSize = 5 * 1024 * 1024; // 5 MB in bytes
+  return file.size > maxSize ? false : true;
+}
+
+function getFileName(file) {
+  return decodeURIComponent(file.name).split("/").pop().split(".").slice(0, -1).join(".");
 }
 
 function getFileDataUrl(file) {
@@ -53,6 +67,7 @@ function createItem(itemData) {
   currentItems.push(itemData);
   localStorage.setItem(`${projectName}_items`, JSON.stringify(currentItems));
 
+  selectedItem = itemData.id
   displayItems();
   Toast.show("Item has been successfully created");
 }
@@ -60,11 +75,14 @@ function createItem(itemData) {
 function updateItem(itemId, updates) {
   if (!updates.name) return;
   const item = getItem(itemId);
+  if (item.icon === updates.icon && item.name === updates.name && item.content === updates.content) {
+    Toast.show("No update performed. There's nothing to update");
+    return
+  }
+
   const updatedItem = { ...item, ...updates };
-  if (Object.keys(updates).every((key) => updates[key] === item[key])) return Toast.show("Cannot update. There's nothing to update");
 
   currentItems = currentItems.map((item) => (item.id === itemId ? updatedItem : item));
-
   localStorage.setItem(`${projectName}_items`, JSON.stringify(currentItems));
   displayItems();
   Toast.show("Item has been successfully updated");
@@ -79,16 +97,32 @@ function deleteItem(itemId = selectedItem) {
   Toast.show("Item has been successfully deleted");
 }
 
+function sortItems(items) {
+  if (shouldSortByName) items.sort((a, b) => a.name.localeCompare(b.name));
+  else items.sort((a, b) => b.lastModified - a.lastModified);
+
+  const sortedItems = [...items.filter((item) => item.type === "folder"), ...items.filter((item) => item.type === "text")];
+
+  return sortedItems;
+}
+
+function toggleSort() {
+  shouldSortByName = !shouldSortByName
+  displayItems()
+}
+
 function displayItems(items) {
   if (!items) items = currentItems.filter((item) => item.parentId === currentFolder.id);
+
+  items = sortItems(items);
   itemContainer.innerHTML =
     items
       .map(
         (item) =>
           `
-            <div class="item ${item.type}" data-id="${item.id}" onclick="handleItem('${item.id}')">
+            <div class="item ${item.type} ${selectedItem === item.id ? "selected" : ""}" data-id="${item.id}" onclick="handleItem('${item.id}')">
               <img src="${item.icon || `${item.type}.png`}">
-              <p class="item-text truncated">${item.name}</p>
+              <p>${item.name}</p>
             </div>
           `
       )
@@ -116,6 +150,11 @@ function deselectItem() {
   selectedItem = null;
 }
 
+function editItem() {
+  if (!selectedItem) return;
+  ItemModal.toggle(selectedItem);
+}
+
 function openFolder(ref) {
   deselectItem();
   if (Number.isFinite(ref)) {
@@ -129,7 +168,7 @@ function openFolder(ref) {
 }
 
 const ItemModal = (() => {
-  const element = document.querySelector(".text-modal");
+  const element = document.querySelector(".item-modal");
   const title = element.querySelector(".title");
   const nameInput = element.querySelector(".name-input");
   const contentInput = element.querySelector(".content-input");
@@ -148,18 +187,19 @@ const ItemModal = (() => {
       return;
     }
 
-    iconPreview.src = URL.createObjectURL(event.target.files[0])
+    iconPreview.src = URL.createObjectURL(event.target.files[0]);
   };
 
   async function createItemData(item = {}) {
     const itemData = {
-      id: item.id || crypto.randomUUID(),
-      name: nameInput.value || item.name,
+      id: item.id || generateId(),
+      name: nameInput.value,
       type: item.type || currentItemType,
       parentId: item.parentId || currentFolder.id,
       path: item.path || [...currentFolder.path, { id: currentFolder.id, name: currentFolder.name }],
-      content: contentInput.value || item.content,
+      content: contentInput.value,
       icon: iconInput.value ? await getFileDataUrl(iconInput.files[0]) : item.icon || null,
+      lastModified: Date.now(),
     };
     return itemData;
   }
@@ -170,27 +210,35 @@ const ItemModal = (() => {
     iconInput.value = "";
     iconPreview.src = item?.icon || `${currentItemType}.png`;
     title.textContent = item ? `Edit ${item.name}` : `Create new ${currentItemType}`;
-    nameInput.value = item ? item.name : `New ${currentItemType}`;
+    nameInput.value = item ? item.name : getItemName(`New ${currentItemType}`);
     contentInput.classList.toggle("hidden", currentItemType === "folder");
     contentInput.value = item ? item.content : "";
 
     submitBtn.textContent = item ? "Update" : "Create";
-    submitBtn.onclick = item
-      ? async () => {
-          updateItem(item.id, await createItemData(item));
+    submitBtn.onclick = async () => {
+      const itemData = await createItemData(item || {});
+      item ? updateItem(item.id, itemData) : createItem(itemData);
+      toggle();
+    };
+    deleteBtn.classList.toggle("hidden", item == null);
+    deleteBtn.onclick = item
+      ? () => {
+          deleteItem(item.id);
           toggle();
         }
-      : async () => {
-          createItem(await createItemData());
-          toggle();
-        };
-    deleteBtn.classList.toggle("hidden", item == null);
-    deleteBtn.onclick = item ? () => {
-      deleteItem(item.id)
-      toggle()
-    } : () => {};
+      : () => {};
 
     element.classList.toggle("hidden");
+  }
+
+  function getItemName(baseName) {
+    let count = 1;
+    let name;
+    do {
+      name = `${baseName + (count > 1 ? ` (${count})` : "")}`;
+      count++;
+    } while (currentItems.some((item) => item.parentId === currentFolder.id && item.name === name));
+    return name;
   }
 
   return { toggle };
@@ -210,7 +258,7 @@ const Toast = (() => {
 
   function show(message) {
     if (!message) return;
-    const item = crypto.randomUUID();
+    const item = generateId();
     currentItems.push(item);
     container.innerHTML += `
       <div class="toast" data-toast="${item}">
@@ -231,12 +279,32 @@ const Toast = (() => {
   return { show };
 })();
 
-function search(terms) {
-  const items = currentItems.filter((item) => item.parentId === currentFolder.id);
-  const query = terms.trim().toLowerCase();
-  const filteredItems = query ? items.filter((item) => item.name.toLowerCase().includes(query)) : null;
-  displayItems(filteredItems);
-}
+const SearchBar = (() => {
+  const element = document.querySelector(".search-bar");
+  const searchBoxes = document.querySelectorAll(".search-box");
+  const clearBtns = document.querySelectorAll(".search .clear");
+
+  function search(terms) {
+    const items = currentItems.filter((item) => item.parentId === currentFolder.id);
+    const query = terms.trim().toLowerCase();
+    const filteredItems = query ? items.filter((item) => item.name.toLowerCase().includes(query)) : null;
+    displayItems(filteredItems);
+
+    searchBoxes.forEach((el) => (el.querySelector("input").value = terms));
+    clearBtns.forEach((el) => (el.innerHTML = query ? `<i class="bi bi-x-lg"></i>` : `<i class="bi bi-search"></i>`));
+  }
+
+  function clear() {
+    search("");
+  }
+
+  function toggle() {
+    if (header.classList.contains("search")) clear();
+    header.classList.toggle("search");
+  }
+
+  return { search, toggle, clear };
+})();
 
 function displayBreadcrumbs() {
   breadcrumbs.innerHTML = "";
@@ -252,8 +320,13 @@ function displayBreadcrumbs() {
 }
 
 async function upload(file) {
+  if (!file.type.startsWith("text/")) {
+    Toast.show("Upload failed. Only text files are Allowed");
+    return;
+  }
+
   const itemData = {
-    id: crypto.randomUUID(),
+    id: generateId(),
     name: getFileName(file),
     type: "text",
     parentId: currentFolder.id,
@@ -267,7 +340,10 @@ async function upload(file) {
 
 async function download() {
   if (!selectedItem) return;
+
   const item = getItem(selectedItem);
+  if (item.type !== "text") return;
+
   const blob = new Blob([item.content], { type: "text/plain" });
   const url = URL.createObjectURL(blob);
 
@@ -277,13 +353,4 @@ async function download() {
   document.body.appendChild(a);
   a.click();
   a.remove();
-}
-
-function isFileSizeAllowed(file) {
-  const maxSize = 5 * 1024 * 1024; // 5 MB in bytes
-  return file.size > maxSize ? false : true;
-}
-
-function getFileName(file) {
-  return decodeURIComponent(file.name).split("/").pop().split(".").slice(0, -1).join(".");
 }

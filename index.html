@@ -12,43 +12,67 @@
   <body>
     <div class="app container">
       <header class="header">
-        <h1 class="title">Notepad</h1>
+        <div class="main-bar">
+          <h1 class="title">Notepad</h1>
 
-        <div class="actions">
-          <label class="search-box">
-            <input type="text" oninput="search(event.target.value)" placeholder="Type to search..." />
-            <div class="icon">
+          <div class="actions">
+            <label class="search search-box">
+              <input type="text" oninput="SearchBar.search(event.target.value)" placeholder="Type to search..." />
+              <div class="clear" onclick="SearchBar.clear()">
+                <i class="bi bi-search"></i>
+              </div>
+            </label>
+
+            <button class="search-btn" onclick="SearchBar.toggle()">
               <i class="bi bi-search"></i>
-            </div>
-          </label>
+            </button>
+            <button class="theme-toggle" onclick="toggleTheme()"></button>
+          </div>
+        </div>
 
-          <button class="theme-toggle" onclick="toggleTheme()"></button>
+        <div class="search search-bar">
+          <button class="exit" onclick="SearchBar.toggle()">
+            <i class="bi bi-arrow-left"></i>
+          </button>
+          <label class="search-box">
+            <input type="text" oninput="SearchBar.search(event.target.value)" placeholder="Type to search..." />
+          </label>
+          <button onclick="SearchBar.clear()" class="clear">
+            <i class="bi bi-search"></i>
+          </button>
         </div>
       </header>
+
       <main>
         <div class="breadcrumbs"></div>
         <div class="action-bar">
           <button onclick="ItemModal.toggle()">
-            <i class="bi bi-file-earmark-font"></i>
+            <i class="bi bi-file-earmark-plus"></i>
           </button>
           <button onclick="ItemModal.toggle(null, 'folder')">
             <i class="bi bi-folder-plus"></i>
           </button>
+          <button class="edit" onclick="editItem()">
+            <i class="bi bi-pencil"></i>
+          </button>
+          <button class="delete" onclick="deleteItem()">
+            <i class="bi bi-trash"></i>
+          </button>
+          <label class="sort" onclick="toggleSort()">
+            <i class="bi bi-sort-down"></i>
+          </label>
           <label class="file-upload" oninput="upload(event.target.files[0])">
             <i class="bi bi-file-earmark-arrow-up"></i>
             <input type="file" class="hidden" accept=".txt" />
           </label>
-          <label class="download" onclick="download()">
+          <button class="download" onclick="download()">
             <i class="bi bi-file-earmark-arrow-down"></i>
-          </label>
-          <label class="delete" onclick="deleteItem()">
-            <i class="bi bi-trash"></i>
-          </label>
+          </button>
         </div>
 
         <div class="item-container"></div>
 
-        <div class="text-modal modal hidden" onclick="ItemModal.toggle()">
+        <div class="item-modal modal hidden" onclick="ItemModal.toggle()">
           <div class="modal-content" onclick="stopPropagation(event)">
             <button class="close" onclick="ItemModal.toggle()">
               <i class="bi bi-x-lg"></i>

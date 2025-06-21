@@ -230,7 +230,6 @@ body {
   align-items: center;
   flex-wrap: wrap;
   gap: 5px;
-  width: max-content;
 }
 
 .action-bar > * {
@@ -272,8 +271,12 @@ body {
 .item-container .item * {
   position: relative;
   width: 100%;
-  text-align: center;
   margin-bottom: 2px;
+}
+
+.item-container .item img {
+  max-height: 100px;
+  object-fit: contain;
 }
 
 .item-container .item p {
@@ -281,6 +284,7 @@ body {
   text-overflow: ellipsis;
   font-size: 0.8rem;
   max-height: 40px;
+  text-align: center;
 }
 
 .item-modal .name-input {
@@ -297,6 +301,7 @@ body {
 .item-modal .icon-input img {
   width: 32px;
   height: 32px;
+  object-fit: contain;
 }
 
 .item-modal .content-input {
@@ -329,8 +334,8 @@ body {
 }
 
 .toast {
-  background-color: var(--border-color);
-  color: var(--bg-color);
+  background-color: rgba(0, 0, 0, 0.5);
+  color: white;
   padding: 12px 20px;
   border-radius: 5px;
   width: max-content;
@@ -361,5 +366,9 @@ body {
 
   .header.search .search-bar {
     display: flex;
+  }
+
+  .action-bar .sort {
+    display: none;
   }
 }

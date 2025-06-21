@@ -80,7 +80,7 @@ function displayItems(items) {
         (item) =>
           `
             <div class="item ${item.type} ${selectedItem === item.id ? "selected" : ""}" data-id="${item.id}" onclick="handleItem('${item.id}')">
-              <img src="${item.icon || `../images/${item.type}.png`}">
+              <img src="${item.icon || `images/${item.type}.png`}">
               <p>${item.name}</p>
             </div>
           `

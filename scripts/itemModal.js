@@ -32,7 +32,7 @@ const ItemModal = (() => {
     const item = getItem(itemId);
     currentItemType = itemType || item?.type || "text";
     iconInput.value = "";
-    iconPreview.src = item?.icon || `../images/${currentItemType}.png`;
+    iconPreview.src = item?.icon || `images/${currentItemType}.png`;
     title.textContent = item ? `Edit ${item.name}` : `Create new ${currentItemType}`;
     nameInput.value = item ? item.name : getItemName(`New ${currentItemType}`);
     contentInput.classList.toggle("hidden", currentItemType === "folder");
